@@ -5,7 +5,9 @@
 }
 
 body {
+  color: white;
   font-family: 'Open Sans', 'Lato', sans-serif;
+  background-color: slategrey;
 }
 
 h1,

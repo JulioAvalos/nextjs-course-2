@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 function LastSalesPage(props) {
-  const [sales, setSales] = useState();
+  const [sales, setSales] = useState(props.sales);
   // const [isLoading, setIsLoading] = useState(false);
-
   const { data, error } = useSWR(props.url);
 
   useEffect(() => {
-    if(data) {
+    if (data) {
       const transformedSales = [];
 
       for (const key in data) {
@@ -46,7 +45,7 @@ function LastSalesPage(props) {
     return <p>Failed to load.</p>;
   }
 
-  if (!data || !sales) {
+  if (!data && !sales) {
     return <p>Loading...</p>;
   }
 
@@ -54,20 +53,32 @@ function LastSalesPage(props) {
     <ul>
       {sales.map((sale) => (
         <li key={sale.id}>
-          {sale.username} - {sale.volume}
+          {sale.username} - ${sale.volume}
         </li>
       ))}
     </ul>
   );
 }
 
-export default LastSalesPage;
-
-//added to retrieve my .env backend url
 export async function getStaticProps() {
+  const response = await fetch(process.env.BACKEND_URL);
+  const data = await response.json();
+  const transformedSales = [];
+
+  for (const key in data) {
+    transformedSales.push({
+      id: key,
+      username: data[key].username,
+      volume: data[key].volume,
+    });
+  }
+
   return {
     props: {
-      url: process.env.BACKEND_URL,
+      sales: transformedSales,
     },
+    revalidate: 10,
   };
 }
+
+export default LastSalesPage;
